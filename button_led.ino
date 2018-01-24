@@ -15,7 +15,6 @@ void setup() {
    mySerial.begin(9600);
    pinMode(LED, OUTPUT);
    pinMode(BUTTON, INPUT);
-   digitalWrite(1, LOW);
 }
 
 void button_update(){
@@ -37,18 +36,18 @@ void button_update(){
       // only toggle the LED if the new button state is HIGH
       if (buttonState == HIGH) {
         ledState = !ledState;
-        mySerial.write("AT+BUTTON_1=pressed");
+        mySerial.println("AT+BUTTON_1=pressed");
       }
     }
   }
-  
+
   // save the reading. Next time through the loop, it'll be the lastButtonState:
   lastButtonState = reading;
 }
 
 void print_led_state() {
   mySerial.print("AT+LED=");
-  mySerial.print(ledState);
+  mySerial.println(ledState);
 }
 
 void turn_led(int state) {
@@ -59,21 +58,22 @@ void turn_led(int state) {
 void toggle_led(){
   turn_led(!ledState);
 }
-  
+
 void serial_update(){
   while (mySerial.available() > 0) {
     char recieved = mySerial.read();
-    message += recieved; 
+    message += recieved;
 
+    message.trim();
     // Process message when new line character is recieved
     if (recieved == '\n') {
-      if(message == "AT+LED=1") { turn_led(HIGH); }
+      if(message == "AT+LED=1") {turn_led(HIGH);}
       if(message == "AT+LED=0") { turn_led(LOW); }
       if(message == "AT+LED=t") { toggle_led(); }
       if(message == "AT+LED=?") { print_led_state(); }
-            
+
       message = "";
-    }     
+    }
   }
 }
 
